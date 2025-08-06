@@ -27,11 +27,11 @@ You can change the NetBox VRF name to something else, but should at least keep t
 LAN Prefixes are added within the VRF, or added/updated globally in case of WAN Subnets.
 In case of a WAN IP-address, the IP is added to the Global VRF, or it is updated if it exists in this space already.
 
-You may combine or 'merge' Neutron networks into specific NetBox VRFs by adding the relevant Neutron network ID and the 
-openstack-api-script tag to said VRF. You should place a single "," 
-in between Network IDs when combining multiple Neutron networks.
-Delete the openstack-api-script tagged items in the 'old' VRF,
-then delete the old VRF itself and re-run the script.  
+You may combine or 'merge' Neutron networks into specific NetBox VRFs by adding the relevant 
+Neutron network ID to the proper Custom Field and the openstack-api-script tag to said VRF.
+You should place a single "," in between Network IDs when combining multiple Neutron networks.
+Delete the openstack-api-script tagged items in the 'old' VRF, then delete the old VRF itself 
+(or otherwise remove the tag and Neutron ID from it) and re-run the script.
 This will only work for 'LAN' VRFs, as we don't create VRFs to hold WAN objects.
 
 This script can be re-run, and it'll update NetBox Objects with their latest states.
@@ -190,7 +190,7 @@ Maybe like, order a VPS if this script gives you happy feelings ¯\\\_(ツ)_/¯
 - Include Octavia Load Balancers and Trove Database Instances?
 
 # Other cool import plug-ins
-You may also want to take a look at these cool NetBox scripts/plug-ins (not affiliated with OpenSTack2NetBox):
+You may also want to take a look at these cool NetBox scripts/plug-ins (not affiliated with OpenStack2NetBox):
 
 - https://github.com/bonzo81/netbox-librenms-plugin/
 - https://github.com/SRC-doo/netbox-ssot
