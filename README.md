@@ -75,8 +75,8 @@ os_auth_url_type="public"
 ```
 
 If you manage your OpenStack environment, you may want to create a new user rather than use your current one.  
-**OpenStack web-interface --> Identity --> Users --> Create User**
-OpenStack Username goes into `os_username`, Password into `os_password` and Tenant into `os_project_name`.
+**OpenStack web-interface --> Identity --> Users --> Create User**  
+OpenStack Username goes into `os_username`, Password into `os_password` and Tenant into `os_project_name`.  
 ```
 User Name: netbox
 Password: xxx
