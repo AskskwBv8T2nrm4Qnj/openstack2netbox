@@ -50,7 +50,7 @@ git clone https://github.com/AskskwBv8T2nrm4Qnj/openstack2netbox.git
 
 Create a virtual environment and prepare the requirements:
 ```
-cd openstacknetbox/
+cd openstack2netbox/
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -Ur requirements.txt
