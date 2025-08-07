@@ -19,27 +19,6 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #  SOFTWARE.
 
-#  MIT License
-#
-#  Copyright (c) 2025. Patrick Brammerloo, Mark Zijdemans, DirectVPS [https://directvps.nl/]
-#
-#  Permission is hereby granted, free of charge, to any person obtaining a copy
-#  of this software and associated documentation files (the "Software"), to deal
-#  in the Software without restriction, including without limitation the rights
-#  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#  copies of the Software, and to permit persons to whom the Software is
-#  furnished to do so, subject to the following conditions:
-#
-#  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-#
-#  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#  SOFTWARE.
-
 import sys
 import os
 
@@ -71,9 +50,9 @@ except Exception as e:
 
 def updatestatus(nova_instances, netbox_vm_dictionary):
     unchangedvms = 0
-    print(f"Attempting to update Netbox Virtual Machine statusses for Netbox cluster {cluster_name}")
+    print(f"Attempting to update Netbox Virtual Machine statuses for Netbox cluster {cluster_name}")
     for instance in nova_instances:
-        currentstatus = getstatus(instance.status)  # We transform OpenStack statusses to Netbox statusses
+        currentstatus = getstatus(instance.status)  # We transform OpenStack statuses to Netbox statuses
         if instance.id in netbox_vm_dictionary.keys():
             nbvm = netbox_vm_dictionary.get(instance.id)
             nbvmvstatus = str(nbvm.status)

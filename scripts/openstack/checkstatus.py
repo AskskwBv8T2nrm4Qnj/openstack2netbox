@@ -32,7 +32,7 @@ def getstatus(status):
     vm_status_failed = {"error", "deleted", "unknown"}
     vm_status_staged = {"paused", "shelved", "shelved_offloaded"}
     vm_status_decommisioning = {"soft_deleted"}
-    # Bring all OpenStack statusses inline with Netbox statusses based on sets created above
+    # Bring all OpenStack statuses inline with Netbox statuses based on sets created above
     status = status.lower()
     if status in vm_status_active:
         status = "active"

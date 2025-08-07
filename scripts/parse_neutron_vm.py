@@ -70,7 +70,7 @@ def neutronrouter_to_netboxvms(neutronrouters, flavordictionary, tenantdictionar
             print(f"Unable to access Keystone Project name for router {router}")
             sys.exit(1)
         try:
-            status = getstatus(openstackstatus)  # We transform OpenStack statusses to Netbox statusses
+            status = getstatus(openstackstatus)  # We transform OpenStack statuses to Netbox statuses
         except Exception as e:
             print(f"Unable to transform OpenStack status to Netbox status for router \n{e}")
             sys.exit(1)

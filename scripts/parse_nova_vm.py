@@ -105,7 +105,7 @@ def define_nova_object(instance, flavordictionary, tenantdictionary):
             instancetenant = "Not associated with a Tenant"
             # sys.exit(1)
     try:
-        currentstatus = getstatus(instance.status)  # We transform OpenStack statusses to Netbox statusses
+        currentstatus = getstatus(instance.status)  # We transform OpenStack statuses to Netbox statuses
     except Exception as e:
         print(f"Unable to transform OpenStack status to Netbox status \n{e}")
         sys.exit(1)
