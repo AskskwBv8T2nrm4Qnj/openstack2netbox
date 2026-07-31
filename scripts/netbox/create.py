@@ -60,7 +60,7 @@ def createvmdisk(os_volume_object, netbox_vm):
         disker = nb.virtualization.virtual_disks.create(
             virtual_machine=netbox_vm.id,
             name=os_volume_object.vol_name,
-            size=os_volume_object.vol_mb,
+            size=os_volume_object.vol_size,
             comments=f"Created by OpenStack API script but this time its a Virtual Disk for {cluster_name}",
             tags=[netboxtagopenstackapiscriptid],
             custom_fields={'openstack_volumeid': os_volume_object.vol_id}

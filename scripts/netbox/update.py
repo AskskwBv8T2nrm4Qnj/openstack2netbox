@@ -65,7 +65,7 @@ def updatevmdisk(openstack_volume_obj, netbox_vm, netbox_vol):
             {"id": netbox_vol.id,
              "virtual_machine": netbox_vm.id,
              "name": openstack_volume_obj.vol_name,
-             "size": openstack_volume_obj.vol_mb
+             "size": openstack_volume_obj.vol_size
              }
         ])
         print(f"Updated Volume {openstack_volume_obj.vol_name} for VM "
