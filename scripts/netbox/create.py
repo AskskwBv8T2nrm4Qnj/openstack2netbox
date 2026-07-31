@@ -114,12 +114,17 @@ def createnetboxmac(neutron_interface, netbox_interface):
 
 
 def createnetboxvrf(myvrf, openstacknetworkid):
-    vrfer = nb.ipam.vrfs.create(
-        name=myvrf,
-        comments=f"Created by OpenStack API script but this time a VRF for {cluster_name}",
-        tags=[netboxtagopenstackapiscriptid],
-        custom_fields={'openstack_networkid': openstacknetworkid}
-    )
+    try:
+        # We don't retry creation within the Exception, because NetBox doesn't mind duplicate VRF names
+        vrfer = nb.ipam.vrfs.create(
+            name=myvrf,
+            comments=f"Created by OpenStack API script but this time a VRF for {cluster_name}",
+            tags=[netboxtagopenstackapiscriptid],
+            custom_fields={'openstack_networkid': openstacknetworkid}
+        )
+    except Exception as e:
+        print(f"Unable to create NetBox VRF {myvrf}. It's OpenStack ID is {openstacknetworkid}. \n {e}")
+        sys.exit(1)
 
 
 def createnetboxglobalsubnet(openstack_subnet_obj):

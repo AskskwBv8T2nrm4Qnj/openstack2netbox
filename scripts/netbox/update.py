@@ -117,12 +117,15 @@ def update_netbox_interface_mac(netbox_mac_address, netbox_interface):
 
 
 def updatenetboxvrf(osvrfname, nbvrfid):
-    vrfer = nb.ipam.vrfs.update([
-        {"name": osvrfname,
-         "id": nbvrfid
-         }
-    ])
-
+    try:
+        vrfer = nb.ipam.vrfs.update([
+            {"name": osvrfname,
+             "id": nbvrfid
+             }
+        ])
+    except Exception as e:
+        print(f"Unable to update NetBox VRF {osvrfname}: NetBox ID {nbvrfid} \n{e}")
+        sys.exit(1)
 
 def updatenetboxglobalsubnet(openstack_subnet_obj, netbox_prefix):
     try:
