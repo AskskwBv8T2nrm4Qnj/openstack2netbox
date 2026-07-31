@@ -54,7 +54,7 @@ def updatenetboxvm(netbox_vm_id, os_vm):
             print(f"Updated custom-named VM {os_vm.custom_name} in Netbox cluster {cluster_name} "
                   f"based on OpenStack ID {os_vm.instance_id}")
         else:
-            print(f"Unable to update custom-named VM {os_vm.customname} in Netbox cluster {cluster_name} "
+            print(f"Unable to update custom-named VM {os_vm.custom_name} in Netbox cluster {cluster_name} "
                   f"based on OpenStack ID {os_vm.instance_id} \n{e}")
             sys.exit(1)
 
