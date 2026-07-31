@@ -123,6 +123,7 @@ def updatenetboxvrf(osvrfname, nbvrfid):
              "id": nbvrfid
              }
         ])
+        print(f'Updated Netbox VRF {osvrfname} ID {nbvrfid} because it contains one or more RFC1918 IPs')
     except Exception as e:
         print(f"Unable to update NetBox VRF {osvrfname}: NetBox ID {nbvrfid} \n{e}")
         sys.exit(1)

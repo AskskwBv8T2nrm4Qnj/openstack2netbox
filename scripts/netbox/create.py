@@ -122,6 +122,7 @@ def createnetboxvrf(myvrf, openstacknetworkid):
             tags=[netboxtagopenstackapiscriptid],
             custom_fields={'openstack_networkid': openstacknetworkid}
         )
+        print(f'Created Netbox VRF {myvrf} because it contains one or more RFC1918 IPs')
     except Exception as e:
         print(f"Unable to create NetBox VRF {myvrf}. It's OpenStack ID is {openstacknetworkid}. \n {e}")
         sys.exit(1)
