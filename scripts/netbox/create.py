@@ -202,20 +202,26 @@ def createlanipamip(address_object, netbox_vrf):
         sys.exit(1)
 
 
-def createnetboxrouter(name, status, routerid, tenantname):
+def createnetboxrouter(router):
     try:
         neutroner = nb.virtualization.virtual_machines.create(
-            name=name,
-            status=status,
+            name=router.name,
+            status=router.status,
             cluster=clusterid,
             tags=[netboxtagopenstackapiscriptid],
-            custom_fields={'openstack_id': routerid, 'openstack_tenant': tenantname},
+            custom_fields={'openstack_id': router.router_id, 'openstack_tenant': router.tenant},
             comments=f"Created by OpenStack API script but this time a router-based VM for {cluster_name}"
         )
-        print(f"Created router VM {name} in NetBox cluster {cluster_name}.")
+        print(f"Created router VM {router.name} in NetBox cluster {cluster_name}.")
     except Exception as e:
-        print(f"Unable to create router VM {name} in NetBox cluster {cluster_name} \n{e}")
-        sys.exit(1)
+        if ("The request failed with code 400 Bad Request:" in str(e) and
+                "Virtual machine name must be unique per cluster." in str(e)):
+            # If the router does not have a unique NetBox name, create it with our custom name instead
+            router.name = router.custom_name
+            createnetboxrouter(router)
+        else:
+            print(f"Unable to create router {router.name} in NetBox cluster {cluster_name} \n{e}")
+            sys.exit(1)
 
 
 def createnetboxagent(name, agentid):

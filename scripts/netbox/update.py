@@ -193,18 +193,26 @@ def updatelanipamip(address_object, nb_ip):
         sys.exit(1)
 
 
-def updatenetboxrouter(netbox_vm_id, name, status):
+def updatenetboxrouter(netbox_vm_id, router):
     try:
         routerer = nb.virtualization.virtual_machines.update([
             {'id': netbox_vm_id,
-             'name': name,
-             'status': status
+             'name': router.name,
+             'status': router.status
              }
         ])
-        print(f"Updated router {name} in NetBox cluster {cluster_name}, for VM {netbox_vm_id}")
+        print(f"Updated router {router.name} in NetBox cluster {cluster_name} for NetBox VM {netbox_vm_id}")
     except Exception as e:
-        print(f"Unable to update router {name} in NetBox cluster {cluster_name} for VM {netbox_vm_id} \n{e}")
-        sys.exit(1)
+        if ("The request failed with code 400 Bad Request:" in str(e) and
+                "Virtual machine name must be unique per cluster." in str(e)):
+            # If the router does not have a unique NetBox name, update it with our custom name
+            router.name = router.custom_name
+            updatenetboxrouter(netbox_vm_id, router)
+            print(f"Updated custom-named VM {router.custom_name} in NetBox cluster {cluster_name} "
+                  f"based on OpenStack ID {router.router_id}")
+        else:
+            print(f"Unable to update router {router.name} in NetBox cluster {cluster_name} for NetBox VM {netbox_vm_id} \n{e}")
+            sys.exit(1)
 
 
 def updatenetboxagent(netbox_vm_id, name):
