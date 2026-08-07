@@ -173,7 +173,7 @@ def createglobalipamip(address_object):
             status=address_object.status,
             virtual_machine=address_object.nb_vm_id,
             interface=address_object.nb_int_id,
-            comments=f"Created by OpenStack API script but this time a global IP-adress for {cluster_name}",
+            comments=f"Created by OpenStack API script but this time a global IP-address for {cluster_name}",
             assigned_object_type="virtualization.vminterface",
             assigned_object_id=address_object.nb_int_id,
             tags=[netboxtagopenstackapiscriptid]
@@ -190,15 +190,17 @@ def createlanipamip(address_object, netbox_vrf):
             address=address_object.address,
             status=address_object.status,
             virtual_machine=address_object.nb_vm_id,
-            comments=f"Created by OpenStack API script but this time a private IP-adress for {cluster_name}",
+            comments=f"Created by OpenStack API script but this time a private IP-address for {cluster_name}",
             assigned_object_type="virtualization.vminterface",
             assigned_object_id=address_object.nb_int_id,
             vrf=netbox_vrf.id,
             tags=[netboxtagopenstackapiscriptid]
         )
-        print(f"Created LAN IP {address_object.address} for Netbox VM {address_object.nb_vm_name}, interface {address_object.nb_int_name} in VRF {netbox_vrf.name}")
+        print(f"Created LAN IP {address_object.address} for NetBox VM {address_object.nb_vm_name}, "
+              f"interface {address_object.nb_int_name} in VRF {netbox_vrf.name}")
     except Exception as e:
-        print("Unable to create LAN IP {address_obj.address} for Netbox VM {address_obj.nb_vm_name}, interface {address_obj.nb_int_name} in VRF {netbox_vrf.name} \n{e}")
+        print(f"Unable to create LAN IP {address_object.address} for NetBox VM {address_object.nb_vm_name}, "
+              f"interface {address_object.nb_int_name} in VRF {netbox_vrf.name} \n{e}")
         sys.exit(1)
 
 
