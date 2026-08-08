@@ -20,6 +20,7 @@
 #  SOFTWARE.
 
 import sys
+from pynetbox import RequestError
 
 import settings
 nb = settings.nb
@@ -169,10 +170,19 @@ def updateglobalipamip(address_object, nb_ip):
              }
         ])
         print(f"Updated WAN IP {nb_ip.address} to VM {address_object.nb_vm_name} "
-              f"Interface {address_object.nb_int_name}, in the Global VRF")
+              f"Interface {address_object.nb_int_name}")
+    except RequestError as rq_error:
+        if "Cannot reassign IP address while it is designated as the primary IP for the parent object" in str(rq_error.error):
+            print(f"Error: Unable to update NetBox Address {nb_ip.address} "
+                  f"as it is currently assigned as primary to NetBox object {nb_ip.assigned_object_id}!")
+            pass
+        else:
+            print(f"Unable to update WAN IP {nb_ip.address} for Netbox VM {address_object.nb_vm_name} "
+                  f"Interface {address_object.nb_int_name} \n{rq_error}")
+            sys.exit(1)
     except Exception as e:
         print(f"Unable to update WAN IP {nb_ip.address} for Netbox VM {address_object.nb_vm_name} "
-              f"Interface {address_object.nb_int_name}, in the Global VRF \n{e}")
+              f"Interface {address_object.nb_int_name} \n{e}")
         sys.exit(1)
 
 
@@ -187,6 +197,15 @@ def updatelanipamip(address_object, nb_ip):
         ])
         print(f"Updated LAN IP {nb_ip.address} to VM {address_object.nb_vm_name}, "
               f"interface {address_object.nb_int_name}")
+    except RequestError as rq_error:
+        if "Cannot reassign IP address while it is designated as the primary IP for the parent object" in str(rq_error.error):
+            print(f"Error: Unable to update NetBox Address {nb_ip.address} "
+                  f"as it is currently assigned as primary to NetBox object {nb_ip.assigned_object_id}!")
+            pass
+        else:
+            print(f"Unable to update LAN IP {nb_ip.address} for Netbox VM {address_object.nb_vm_name}, "
+                  f"interface {address_object.nb_int_name} \n{rq_error}")
+            sys.exit(1)
     except Exception as e:
         print(f"Unable to update LAN IP {nb_ip.address} for Netbox VM {address_object.nb_vm_name}, "
               f"interface {address_object.nb_int_name} \n{e}")
