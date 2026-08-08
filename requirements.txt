@@ -1,6 +1,6 @@
 # OpenStack2NetBox requirements
-pynetbox~=7.5.0
-python-dotenv>=1.0.1
+pynetbox~=7.8.0
+python-dotenv>=1.2.2
 python-cinderclient~=9.5.0
 python-keystoneclient~=5.4.0
 python-neutronclient~=11.3.1
