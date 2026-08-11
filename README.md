@@ -31,8 +31,8 @@ The tool populates these NetBox categories:
 # Tested compatibility
 | OpenStack         | NetBox | OpenStack2NetBox | Other                  |
 |-------------------|--------|------------------|------------------------|
-| Antelope, Caracal | v4.3.5 | v0.7.1           | Ubuntu 22, Python 3.8  |
-| Antelope, Caracal | v4.6.7 | v0.7.2           | Ubuntu 24, Python 3.12 |
+| Antelope, Caracal | v4.3.5 | v0.7.2           | Ubuntu 22, Python 3.8  |
+| Antelope, Caracal | v4.6.7 | v0.7.3           | Ubuntu 24, Python 3.12 |
 
 # Installation
 Install git, python and clone the repo:
