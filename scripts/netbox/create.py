@@ -60,7 +60,7 @@ def createvmdisk(os_volume_object, netbox_vm):
         disker = nb.virtualization.virtual_disks.create(
             virtual_machine=netbox_vm.id,
             name=os_volume_object.vol_name,
-            size=os_volume_object.vol_mb,
+            size=os_volume_object.vol_size,
             comments=f"Created by OpenStack API script but this time its a Virtual Disk for {cluster_name}",
             tags=[netboxtagopenstackapiscriptid],
             custom_fields={'openstack_volumeid': os_volume_object.vol_id}
@@ -114,12 +114,18 @@ def createnetboxmac(neutron_interface, netbox_interface):
 
 
 def createnetboxvrf(myvrf, openstacknetworkid):
-    vrfer = nb.ipam.vrfs.create(
-        name=myvrf,
-        comments=f"Created by OpenStack API script but this time a VRF for {cluster_name}",
-        tags=[netboxtagopenstackapiscriptid],
-        custom_fields={'openstack_networkid': openstacknetworkid}
-    )
+    try:
+        # We don't retry creation within the Exception, because NetBox doesn't mind duplicate VRF names
+        vrfer = nb.ipam.vrfs.create(
+            name=myvrf,
+            comments=f"Created by OpenStack API script but this time a VRF for {cluster_name}",
+            tags=[netboxtagopenstackapiscriptid],
+            custom_fields={'openstack_networkid': openstacknetworkid}
+        )
+        print(f'Created Netbox VRF {myvrf} because it contains one or more RFC1918 IPs')
+    except Exception as e:
+        print(f"Unable to create NetBox VRF {myvrf}. It's OpenStack ID is {openstacknetworkid}. \n {e}")
+        sys.exit(1)
 
 
 def createnetboxglobalsubnet(openstack_subnet_obj):
@@ -167,7 +173,7 @@ def createglobalipamip(address_object):
             status=address_object.status,
             virtual_machine=address_object.nb_vm_id,
             interface=address_object.nb_int_id,
-            comments=f"Created by OpenStack API script but this time a global IP-adress for {cluster_name}",
+            comments=f"Created by OpenStack API script but this time a global IP-address for {cluster_name}",
             assigned_object_type="virtualization.vminterface",
             assigned_object_id=address_object.nb_int_id,
             tags=[netboxtagopenstackapiscriptid]
@@ -184,32 +190,40 @@ def createlanipamip(address_object, netbox_vrf):
             address=address_object.address,
             status=address_object.status,
             virtual_machine=address_object.nb_vm_id,
-            comments=f"Created by OpenStack API script but this time a private IP-adress for {cluster_name}",
+            comments=f"Created by OpenStack API script but this time a private IP-address for {cluster_name}",
             assigned_object_type="virtualization.vminterface",
             assigned_object_id=address_object.nb_int_id,
             vrf=netbox_vrf.id,
             tags=[netboxtagopenstackapiscriptid]
         )
-        print(f"Created LAN IP {address_object.address} for Netbox VM {address_object.nb_vm_name}, interface {address_object.nb_int_name} in VRF {netbox_vrf.name}")
+        print(f"Created LAN IP {address_object.address} for NetBox VM {address_object.nb_vm_name}, "
+              f"interface {address_object.nb_int_name} in VRF {netbox_vrf.name}")
     except Exception as e:
-        print("Unable to create LAN IP {address_obj.address} for Netbox VM {address_obj.nb_vm_name}, interface {address_obj.nb_int_name} in VRF {netbox_vrf.name} \n{e}")
+        print(f"Unable to create LAN IP {address_object.address} for NetBox VM {address_object.nb_vm_name}, "
+              f"interface {address_object.nb_int_name} in VRF {netbox_vrf.name} \n{e}")
         sys.exit(1)
 
 
-def createnetboxrouter(name, status, routerid, tenantname):
+def createnetboxrouter(router):
     try:
         neutroner = nb.virtualization.virtual_machines.create(
-            name=name,
-            status=status,
+            name=router.name,
+            status=router.status,
             cluster=clusterid,
             tags=[netboxtagopenstackapiscriptid],
-            custom_fields={'openstack_id': routerid, 'openstack_tenant': tenantname},
+            custom_fields={'openstack_id': router.router_id, 'openstack_tenant': router.tenant},
             comments=f"Created by OpenStack API script but this time a router-based VM for {cluster_name}"
         )
-        print(f"Created router VM {name} in NetBox cluster {cluster_name}.")
+        print(f"Created router VM {router.name} in NetBox cluster {cluster_name}.")
     except Exception as e:
-        print(f"Unable to create router VM {name} in NetBox cluster {cluster_name} \n{e}")
-        sys.exit(1)
+        if ("The request failed with code 400 Bad Request:" in str(e) and
+                "Virtual machine name must be unique per cluster." in str(e)):
+            # If the router does not have a unique NetBox name, create it with our custom name instead
+            router.name = router.custom_name
+            createnetboxrouter(router)
+        else:
+            print(f"Unable to create router {router.name} in NetBox cluster {cluster_name} \n{e}")
+            sys.exit(1)
 
 
 def createnetboxagent(name, agentid):

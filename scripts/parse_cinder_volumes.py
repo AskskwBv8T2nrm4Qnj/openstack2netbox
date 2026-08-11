@@ -40,8 +40,7 @@ def cinder_to_netboxdisks(cinderdictionary, netbox_volume_dictionary, netbox_vm_
                                                      osvolumename,
                                                      osvolumecustomname,
                                                      cinderdictionary[volumeid]['osvolinstanceid'],  # Bound Instance ID
-                                                     cinderdictionary[volumeid]['osvolsizegb'],
-                                                     cinderdictionary[volumeid]['osvolsizemb'])
+                                                     cinderdictionary[volumeid]['osvolsize'])
             netboxvm = netbox_vm_dictionary.get(cinderdictionary[volumeid]['osvolinstanceid'])
         except Exception as e:
             print(f"Unable to define variables for Volume {volumeid} \n{e}")
@@ -62,19 +61,18 @@ def cinder_to_netboxdisks(cinderdictionary, netbox_volume_dictionary, netbox_vm_
 
 
 class CreateCinderVolumeObject(object):
-    def __init__(self, os_vol_id, os_vol_name, vol_custom_name, os_vol_instance_id, os_vol_gb, os_vol_mb):
+    def __init__(self, os_vol_id, os_vol_name, vol_custom_name, os_vol_instance_id, os_vol_size):
         self.vol_id = os_vol_id
         self.vol_name = os_vol_name
         self.custom_name = vol_custom_name
         self.instance_id = os_vol_instance_id
-        self.vol_gb = os_vol_gb
-        self.vol_mb = os_vol_mb
+        self.vol_size = os_vol_size
 
 
 def compare_vol_objects(os_cinder_vol_obj, nb_vol, nb_vm):
     global unchangedvols
     try:
-        if (nb_vol.size != os_cinder_vol_obj.vol_mb or
+        if (nb_vol.size != os_cinder_vol_obj.vol_size or
                 (nb_vol.name != os_cinder_vol_obj.vol_name and nb_vol.name != os_cinder_vol_obj.custom_name) or
                 nb_vol.virtual_machine.id != nb_vm.id):
             updatevmdisk(os_cinder_vol_obj, nb_vm, nb_vol)

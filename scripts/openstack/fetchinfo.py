@@ -179,16 +179,24 @@ def getvolumes(mycindervolumes):
                     # We keep only the results which are attached to an Instance
                     volumeid = volume.id
                     volumename = volume.name
-                    volumesizegib = volume.size
-                    volumesizegb = int(round(volumesizegib * 1.073742))
-                    volumesizemb = int(round(volumesizegib * 1073.742))
+                    volumesize = int(round(volume.size * 1024)) # Convert GiB to MiB
+                    # ^ This is the place to be, if you want to manually override disk sizes
+                    # volumesizegib = int(round(volume.size * 1000))
+                    # volumesizegb = int(round(volume.size * 1.073742))
+                    # volumesizemb = int(round(volume.size * 1073.742))
                     volumeinstanceid = volume.attachments[0]['server_id']
                     if volumename == "" or volumename is None:
                         # OpenStack returns a "" or Null value when name is not set explicitly, so set name to the ID in that case
                         volumename = volume.id
                     volumename = volumename[:64]
-                    volumedictionary[volumeid] = {'osvolname': volumename, 'osvolid': volumeid, 'osvolsizegb': volumesizegb,
-                                                  'osvolinstanceid': volumeinstanceid, 'osvolsizemb': volumesizemb}
+                    volumedictionary[volumeid] = {'osvolname': volumename,
+                                                  'osvolid': volumeid,
+                                                  'osvolinstanceid': volumeinstanceid,
+                                                  #'osvolsizegb': volumesizegb,
+                                                  #'osvolsizemb': volumesizemb,
+                                                  #'osvolsizegib': volumesizegib,
+                                                  'osvolsize': volumesize
+                                                  }
                 except Exception as e:
                     print(f"Unable to create Cinder Volume for {volume} \n{e}")
                     sys.exit(1)

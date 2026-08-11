@@ -44,7 +44,7 @@ def netboxipamvrfs(openstack_vrf_dic, netbox_vrf_dic):
         customvrfname = f"OpenStack_{cluster_name}_{openstacknetworkname}"  # Define a VRF-name based on the network the address is in
         customvrfname = str(customvrfname[:64])  # NetBox API doesn't take more than 64 characters
         if openstacknetworkid in netbox_vrf_dic.keys():
-            # We check whether the VRF exists and return its ID if it does
+            # We check whether the OpenStack Neutron network ID exists in a NetBox VRF
             nb_vrf = netbox_vrf_dic.get(openstacknetworkid)
             nb_vrf_shortname = f"OpenStack_{cluster_name}_"
             try:
@@ -52,7 +52,7 @@ def netboxipamvrfs(openstack_vrf_dic, netbox_vrf_dic):
                         customvrfname == nb_vrf.name):
                     # We give people the opportunity to keep custom NetBox VRF-names,
                     # But only if said VRF has the correct Openstack Network ID and our tag applied
-                    # Furthermore the only thing that can be changed is the name, so we do nothing if it still the same
+                    # The only thing that can be changed is the name, so we do nothing if it still the same
                     unchangedvrfs = unchangedvrfs + 1
                     if (unchangedvrfs % 10) == 0:
                         print(f"Skipped {unchangedvrfs} NetBox VRFS because nothing changed")
@@ -68,12 +68,7 @@ def netboxipamvrfs(openstack_vrf_dic, netbox_vrf_dic):
                 sys.exit(1)
         elif openstacknetworkid not in netbox_vrf_dic.keys():
             # If the VRF does not exist yet, we create it
-            try:
-                createnetboxvrf(customvrfname, openstacknetworkid)
-                print(f'Created Netbox VRF {customvrfname} because it contains one or more RFC1918 IPs')
-            except Exception as e:
-                print(f"Unable to create Netbox VRF {customvrfname} \n{e}")
-                sys.exit(1)
+            createnetboxvrf(customvrfname, openstacknetworkid)
     print(f"Skipped {unchangedvrfs} VRFS in total, because there were no changes.")
 
 

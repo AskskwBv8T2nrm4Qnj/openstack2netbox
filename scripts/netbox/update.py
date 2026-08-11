@@ -20,6 +20,7 @@
 #  SOFTWARE.
 
 import sys
+from pynetbox import RequestError
 
 import settings
 nb = settings.nb
@@ -54,7 +55,7 @@ def updatenetboxvm(netbox_vm_id, os_vm):
             print(f"Updated custom-named VM {os_vm.custom_name} in Netbox cluster {cluster_name} "
                   f"based on OpenStack ID {os_vm.instance_id}")
         else:
-            print(f"Unable to update custom-named VM {os_vm.customname} in Netbox cluster {cluster_name} "
+            print(f"Unable to update custom-named VM {os_vm.custom_name} in Netbox cluster {cluster_name} "
                   f"based on OpenStack ID {os_vm.instance_id} \n{e}")
             sys.exit(1)
 
@@ -65,7 +66,7 @@ def updatevmdisk(openstack_volume_obj, netbox_vm, netbox_vol):
             {"id": netbox_vol.id,
              "virtual_machine": netbox_vm.id,
              "name": openstack_volume_obj.vol_name,
-             "size": openstack_volume_obj.vol_mb
+             "size": openstack_volume_obj.vol_size
              }
         ])
         print(f"Updated Volume {openstack_volume_obj.vol_name} for VM "
@@ -117,12 +118,16 @@ def update_netbox_interface_mac(netbox_mac_address, netbox_interface):
 
 
 def updatenetboxvrf(osvrfname, nbvrfid):
-    vrfer = nb.ipam.vrfs.update([
-        {"name": osvrfname,
-         "id": nbvrfid
-         }
-    ])
-
+    try:
+        vrfer = nb.ipam.vrfs.update([
+            {"name": osvrfname,
+             "id": nbvrfid
+             }
+        ])
+        print(f'Updated Netbox VRF {osvrfname} ID {nbvrfid} because it contains one or more RFC1918 IPs')
+    except Exception as e:
+        print(f"Unable to update NetBox VRF {osvrfname}: NetBox ID {nbvrfid} \n{e}")
+        sys.exit(1)
 
 def updatenetboxglobalsubnet(openstack_subnet_obj, netbox_prefix):
     try:
@@ -165,10 +170,19 @@ def updateglobalipamip(address_object, nb_ip):
              }
         ])
         print(f"Updated WAN IP {nb_ip.address} to VM {address_object.nb_vm_name} "
-              f"Interface {address_object.nb_int_name}, in the Global VRF")
+              f"Interface {address_object.nb_int_name}")
+    except RequestError as rq_error:
+        if "Cannot reassign IP address while it is designated as the primary IP for the parent object" in str(rq_error.error):
+            print(f"Error: Unable to update NetBox Address {nb_ip.address} "
+                  f"as it is currently assigned as primary to NetBox object {nb_ip.assigned_object_id}!")
+            pass
+        else:
+            print(f"Unable to update WAN IP {nb_ip.address} for Netbox VM {address_object.nb_vm_name} "
+                  f"Interface {address_object.nb_int_name} \n{rq_error}")
+            sys.exit(1)
     except Exception as e:
         print(f"Unable to update WAN IP {nb_ip.address} for Netbox VM {address_object.nb_vm_name} "
-              f"Interface {address_object.nb_int_name}, in the Global VRF \n{e}")
+              f"Interface {address_object.nb_int_name} \n{e}")
         sys.exit(1)
 
 
@@ -183,24 +197,41 @@ def updatelanipamip(address_object, nb_ip):
         ])
         print(f"Updated LAN IP {nb_ip.address} to VM {address_object.nb_vm_name}, "
               f"interface {address_object.nb_int_name}")
+    except RequestError as rq_error:
+        if "Cannot reassign IP address while it is designated as the primary IP for the parent object" in str(rq_error.error):
+            print(f"Error: Unable to update NetBox Address {nb_ip.address} "
+                  f"as it is currently assigned as primary to NetBox object {nb_ip.assigned_object_id}!")
+            pass
+        else:
+            print(f"Unable to update LAN IP {nb_ip.address} for Netbox VM {address_object.nb_vm_name}, "
+                  f"interface {address_object.nb_int_name} \n{rq_error}")
+            sys.exit(1)
     except Exception as e:
         print(f"Unable to update LAN IP {nb_ip.address} for Netbox VM {address_object.nb_vm_name}, "
               f"interface {address_object.nb_int_name} \n{e}")
         sys.exit(1)
 
 
-def updatenetboxrouter(netbox_vm_id, name, status):
+def updatenetboxrouter(netbox_vm_id, router):
     try:
         routerer = nb.virtualization.virtual_machines.update([
             {'id': netbox_vm_id,
-             'name': name,
-             'status': status
+             'name': router.name,
+             'status': router.status
              }
         ])
-        print(f"Updated router {name} in NetBox cluster {cluster_name}, for VM {netbox_vm_id}")
+        print(f"Updated router {router.name} in NetBox cluster {cluster_name} for NetBox VM {netbox_vm_id}")
     except Exception as e:
-        print(f"Unable to update router {name} in NetBox cluster {cluster_name} for VM {netbox_vm_id} \n{e}")
-        sys.exit(1)
+        if ("The request failed with code 400 Bad Request:" in str(e) and
+                "Virtual machine name must be unique per cluster." in str(e)):
+            # If the router does not have a unique NetBox name, update it with our custom name
+            router.name = router.custom_name
+            updatenetboxrouter(netbox_vm_id, router)
+            print(f"Updated custom-named VM {router.custom_name} in NetBox cluster {cluster_name} "
+                  f"based on OpenStack ID {router.router_id}")
+        else:
+            print(f"Unable to update router {router.name} in NetBox cluster {cluster_name} for NetBox VM {netbox_vm_id} \n{e}")
+            sys.exit(1)
 
 
 def updatenetboxagent(netbox_vm_id, name):
